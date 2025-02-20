@@ -15,14 +15,14 @@ class MyString {
   void copy(const MyString& s) {
     length = s.length;
     str = new char[length + 1];
-    strcpy(str, s.str);
+    copyStrings(str, s.str);
   }
 
   public:
     MyString(const char* s = ""){ //the s is assigned to a default value of "" if nothing is passed in
       length = strlen(s);
       str = new char[length+ 1];  //+1 makes space for the terminator \0
-      strcpy(str, s);
+      copyStrings(str, s);
     }
     MyString(const MyString& other){  //copy constructor
       copy(other);
@@ -39,7 +39,47 @@ class MyString {
       }
       return *this;
     }
+  MyString operator+=(const char* stringToAdd) {
+      MyString temp = (*this);
 
+      length =  length + strlen(stringToAdd);
+      char* tempStr = new char[length + 1];
+
+      copyStrings(tempStr, str);
+      concatenateStrings(tempStr, stringToAdd);
+      delete[] temp.str;
+      temp.str = tempStr;
+      *this = temp;
+
+      return *this;
+    }
+  char operator[](int slot){
+    if (slot < 0 || slot > length)
+      throw runtime_error("Index out of bounds");
+    return str[slot];
+    }
+  void concatenateStrings(char* dest, const char* src) {
+      while (*dest) {
+        dest++;   //Increment to end of the original string;
+      }
+
+      while (*src) {
+        *dest = *src;     //Add to the end of the original string, modifying it
+        dest++;
+        src++;
+      }
+      *dest = '\0';   //End string with terminator
+    }
+  void copyStrings(char* dest, const char* src) {
+      if (dest == nullptr || src == nullptr)
+        throw invalid_argument("Null pointer provided to copyString");
+      while (*src) {
+        *dest = *src;
+        dest++;
+        src++;
+      }
+      *dest = '\0';
+    }
   MyString fromPositionSubString(const int pos, const int len) {
       if (pos < 0 || pos > length) {
         throw runtime_error("Position out of bounds");
@@ -100,13 +140,6 @@ class MyString {
       delete[] temp;  //Deallocate the buffer
       return newString;
     }
-
-
-    char operator[](int slot){
-      if (slot < 0 || slot > length)
-        throw runtime_error("Index out of bounds");
-      return str[slot];
-    }
     void setString( char* strn) {
       this -> str = strn;
     }
@@ -155,6 +188,12 @@ int main(){
   MyString sub = n.substring(0,2 );
   cout<<"Sub: " << sub.getString()<< endl;
 
+  MyString str("Hello");
+ // cout<< str.getString()<< endl;
+  char* cs = new char[str.getLength() + 1];
+  str.copyStrings(cs, str.getString());
+  cout<<"Hell " << cs<<endl;
+  delete[] cs;
   //delete[] sub; //Have to use the [] to deallocate the whole array. Without the [] it only deletes the first value since pointers point to the first value of the array
   return 0;
 }

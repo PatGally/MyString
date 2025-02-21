@@ -20,7 +20,7 @@ class MyString {
 
   public:
     MyString(const char* s = ""){ //the s is assigned to a default value of "" if nothing is passed in
-      length = strlen(s);
+      length = stringLength(s);
       str = new char[length+ 1];  //+1 makes space for the terminator \0
       copyStrings(str, s);
     }
@@ -39,10 +39,10 @@ class MyString {
       }
       return *this;
     }
-  MyString operator+=(const char* stringToAdd) {
+  MyString& operator+=(const char* stringToAdd) {
       MyString temp = (*this);
 
-      length =  length + strlen(stringToAdd);
+      length =  length + stringLength(stringToAdd);
       char* tempStr = new char[length + 1];
 
       copyStrings(tempStr, str);
@@ -57,6 +57,17 @@ class MyString {
     if (slot < 0 || slot > length)
       throw runtime_error("Index out of bounds");
     return str[slot];
+    }
+  const int stringLength(const char* str) const{
+      if (str == nullptr)
+        throw invalid_argument("Null pointer passed in on stringLength");
+
+      int count = 0;
+      while (*str) {
+        count++;
+        str++;
+      }
+      return count;
     }
   void concatenateStrings(char* dest, const char* src) {
       while (*dest) {
@@ -80,6 +91,42 @@ class MyString {
       }
       *dest = '\0';
     }
+  void append(const char* newString) {
+      if (newString == nullptr)
+        throw invalid_argument("Nullptr passed into append");
+      *this += newString;
+    }
+
+  int findFirstOccurence(const char* strn) {
+      if (strn == nullptr || str == nullptr)
+        throw invalid_argument("Nullptr passed into findFirstOccurence");
+
+      int lenOfWordToFind = stringLength(strn);
+      int lenOfOriginalWord = stringLength(str);
+
+      if (lenOfOriginalWord == 0 || lenOfWordToFind == 0 || lenOfOriginalWord < lenOfWordToFind) {
+        return -1;
+      }
+
+      for (int i = 0; i < lenOfOriginalWord; i++) {
+        int j = 0;
+        bool notRightLetter = false;
+        if (strn[0] == str[i]) {
+          while (j < lenOfWordToFind && !notRightLetter) {
+            if (strn[j] != str[i+j]) {
+              notRightLetter = true;
+            }
+            j++;
+          }
+          if (!notRightLetter) {
+            return i;
+          }
+        }
+      }
+
+      return -1;
+    }
+
   MyString fromPositionSubString(const int pos, const int len) {
       if (pos < 0 || pos > length) {
         throw runtime_error("Position out of bounds");
@@ -119,7 +166,7 @@ class MyString {
     }
 
     MyString erase(const char* valuesToErase) const{
-      const int lengthOfErase = strlen(valuesToErase);    //Use strlen since it is not an array and a pointer
+      const int lengthOfErase = stringLength(valuesToErase);    //Use strlen since it is not an array and a pointer
       char* temp= new char[length + 1]; //assigns the str member variable a size
       int index = 0;
       for (int i = 0; i < length; i++) {
@@ -178,22 +225,12 @@ bool operator == (const MyString& a, const MyString& b) {
 int main(){
 
   MyString m("xv");
-  MyString n("hello");
-  n = n.fromPositionSubString(4,1);
-  cout<< n.getString()<<  endl;
-  //MyString n(m);  // Explicitly calls the copy constructor
-  if (m == n) cout<< "true";
-  else cout << "false"<< endl;
+  MyString n("hel lpdvello");
+  int pos = n.findFirstOccurence("ll");
+  cout<< pos<< endl;
+  n.append(m.getString());
+  cout<< n.getString()<< endl;
 
-  MyString sub = n.substring(0,2 );
-  cout<<"Sub: " << sub.getString()<< endl;
-
-  MyString str("Hello");
- // cout<< str.getString()<< endl;
-  char* cs = new char[str.getLength() + 1];
-  str.copyStrings(cs, str.getString());
-  cout<<"Hell " << cs<<endl;
-  delete[] cs;
   //delete[] sub; //Have to use the [] to deallocate the whole array. Without the [] it only deletes the first value since pointers point to the first value of the array
   return 0;
 }

@@ -1,236 +1,260 @@
 #include<iostream>
-#include <cstring>
+#include "MyString.h"
+
 using namespace std;
 
-class MyString {
-  private:
-    char* str;
-    int length;
+void MyString::free() {
+    if (str != nullptr)
+        delete[] str;
+}
 
-  void free() {
-    if(str != nullptr)
-      delete[] str;
-  }
-
-  void copy(const MyString& s) {
+void MyString::copy(const MyString& s) {
     length = s.length;
     str = new char[length + 1];
     copyStrings(str, s.str);
-  }
+}
 
-  public:
-    MyString(const char* s = ""){ //the s is assigned to a default value of "" if nothing is passed in
-      length = stringLength(s);
-      str = new char[length+ 1];  //+1 makes space for the terminator \0
-      copyStrings(str, s);
-    }
-    MyString(const MyString& other){  //copy constructor
-      copy(other);
-    }
-    ~MyString(){
-      cout<<"In destructor"<<endl;
-      free();
-    }
+MyString::MyString(const char* s) {
+    length = stringLength(s);
+    str = new char[length + 1];
+    copyStrings(str, s);
+}
 
-  MyString& operator=(const MyString& other) {
-      if (this != &other) {
+MyString::MyString(const MyString& other) {
+    copy(other);
+}
+
+MyString::~MyString() {
+    cout << "In destructor" << endl;
+    free();
+}
+
+MyString& MyString::operator=(const MyString& other) {
+    if (this != &other) {
         free();
         copy(other);
-      }
-      return *this;
     }
-  MyString& operator+=(const char* stringToAdd) {
-      MyString temp = (*this);
+    return *this;
+}
 
-      length =  length + stringLength(stringToAdd);
-      char* tempStr = new char[length + 1];
+MyString& MyString::operator+=(const char* stringToAdd) {
+    MyString temp = (*this);
 
-      copyStrings(tempStr, str);
-      concatenateStrings(tempStr, stringToAdd);
-      delete[] temp.str;
-      temp.str = tempStr;
-      *this = temp;
+    length = length + stringLength(stringToAdd);
+    char* tempStr = new char[length + 1];
 
-      return *this;
-    }
-  char operator[](int slot){
+    copyStrings(tempStr, str);
+    concatenateStrings(tempStr, stringToAdd);
+    delete[] temp.str;
+    temp.str = tempStr;
+    *this = temp;
+
+    return *this;
+}
+
+char MyString::operator[](int slot) {
     if (slot < 0 || slot > length)
-      throw runtime_error("Index out of bounds");
+        throw runtime_error("Index out of bounds");
     return str[slot];
-    }
-  const int stringLength(const char* str) const{
-      if (str == nullptr)
+}
+
+int MyString::stringLength(const char* str) const {
+    if (str == nullptr)
         throw invalid_argument("Null pointer passed in on stringLength");
 
-      int count = 0;
-      while (*str) {
+    int count = 0;
+    while (*str) {
         count++;
         str++;
-      }
-      return count;
     }
-  void concatenateStrings(char* dest, const char* src) {
-      while (*dest) {
-        dest++;   //Increment to end of the original string;
-      }
+    return count;
+}
 
-      while (*src) {
-        *dest = *src;     //Add to the end of the original string, modifying it
+void MyString::concatenateStrings(char* dest, const char* src) const {
+    while (*dest) {
         dest++;
-        src++;
-      }
-      *dest = '\0';   //End string with terminator
     }
-  void copyStrings(char* dest, const char* src) {
-      if (dest == nullptr || src == nullptr)
-        throw invalid_argument("Null pointer provided to copyString");
-      while (*src) {
+
+    while (*src) {
         *dest = *src;
         dest++;
         src++;
-      }
-      *dest = '\0';
     }
-  void append(const char* newString) {
-      if (newString == nullptr)
-        throw invalid_argument("Nullptr passed into append");
-      *this += newString;
-    }
+    *dest = '\0';
+}
 
-  int findFirstOccurence(const char* strn) {
-      if (strn == nullptr || str == nullptr)
+void MyString::copyStrings(char* dest, const char* src) {
+    if (dest == nullptr || src == nullptr)
+        throw invalid_argument("Null pointer provided to copyString");
+    while (*src) {
+        *dest = *src;
+        dest++;
+        src++;
+    }
+    *dest = '\0';
+}
+
+void MyString::append(const char* newString) {
+    if (newString == nullptr)
+        throw invalid_argument("Nullptr passed into append");
+    *this += newString;
+}
+
+int MyString::findFirstOccurrence(const char* strn) const {
+    if (strn == nullptr || str == nullptr)
         throw invalid_argument("Nullptr passed into findFirstOccurence");
 
-      int lenOfWordToFind = stringLength(strn);
-      int lenOfOriginalWord = stringLength(str);
+    int lenOfWordToFind = stringLength(strn);
+    int lenOfOriginalWord = length;
 
-      if (lenOfOriginalWord == 0 || lenOfWordToFind == 0 || lenOfOriginalWord < lenOfWordToFind) {
+    if (lenOfOriginalWord == 0 || lenOfWordToFind == 0 || lenOfOriginalWord < lenOfWordToFind) {
         return -1;
-      }
+    }
 
-      for (int i = 0; i < lenOfOriginalWord; i++) {
+    for (int i = 0; i < lenOfOriginalWord; i++) {
         int j = 0;
         bool notRightLetter = false;
         if (strn[0] == str[i]) {
-          while (j < lenOfWordToFind && !notRightLetter) {
-            if (strn[j] != str[i+j]) {
-              notRightLetter = true;
+            while (j < lenOfWordToFind && !notRightLetter) {
+                if (strn[j] != str[i + j]) {
+                    notRightLetter = true;
+                }
+                j++;
             }
-            j++;
-          }
-          if (!notRightLetter) {
-            return i;
-          }
+            if (!notRightLetter) {
+                return i;
+            }
         }
-      }
-
-      return -1;
     }
 
-  MyString fromPositionSubString(const int pos, const int len) {
-      if (pos < 0 || pos > length) {
-        throw runtime_error("Position out of bounds");
-      }
-      if (len > length || len < 0) {
-        throw runtime_error("Length is out of bounds");
-      }
-      char* temp = new char[len + 1]; //Buffer String
-      int index = 0;
-      for (int i = 0; i < len; i++) {
-        temp[i] = str[pos + i];
-      }
-      temp[len] = '\0';
-      MyString newString(temp); //Create MyString object
-      delete[] temp;  //Deallocate buffer
-      return newString;
-    }
-
-  MyString substring(int startingIndex, int endingIndex) const{
-      if (endingIndex > length || startingIndex < 0 || startingIndex >= endingIndex) {
-        return MyString("");
-      }
-      int subLength = endingIndex - startingIndex;  //Do not add the +1 here, so u can use this for placing the terminator at end of list
-      MyString subString;
-      subString.str = new char[subLength + 1];  //Need to add the plus 1 here in order to make room for proper termination of the string. Without, it causes undefined behavior
-      for (int i = 0; i < subLength; i++) {
-        subString.str[i] = this -> str[startingIndex + i];
-      }
-      subString.str[subLength] = '\0';  //Terminates the string
-      subString.setLength(subLength);
-      return subString;
-    }
-
-    bool empty() {
-      if (length == 0) return true;
-      return false;
-    }
-
-    MyString erase(const char* valuesToErase) const{
-      const int lengthOfErase = stringLength(valuesToErase);    //Use strlen since it is not an array and a pointer
-      char* temp= new char[length + 1]; //assigns the str member variable a size
-      int index = 0;
-      for (int i = 0; i < length; i++) {
-        bool notFound = true;
-        for (int j = 0; j < lengthOfErase; j++) {
-          if (this->str[i] == valuesToErase[j]) {
-            notFound = false;
-            break;
-          }
-        }
-        if (notFound) {
-          temp[index] = str[i];
-          index++;
-        }
-      }
-      temp[index] = '\0';
-      MyString newString(temp); //Create object based off the buffer string that was created
-      delete[] temp;  //Deallocate the buffer
-      return newString;
-    }
-    void setString( char* strn) {
-      this -> str = strn;
-    }
-    char* getString() const{
-      return str;
-    }
-    void setLength(int size) {
-      length = size;
-    }
-    int getLength() const{
-      return length;
-    }
-    const char getCharAt(const int i) const{
-      return str[i];
-    }
-    const int stringByteSize() {
-      return sizeof(char) *(length+1);
-    }
-    const int totalByteSize() {
-      return sizeof(this) + sizeof(char) * length + 1;
-    }
-
-};
-
-bool operator == (const MyString& a, const MyString& b) {
-  cout<< "In == operator" << endl;
-  bool notEqual = true;
-  for (int i = 0; i < a.getLength(); i++) {
-    if (a.getCharAt(i) != b.getCharAt(i)) {
-      notEqual = false;
-    }
-  }
-  return notEqual;
+    return -1;
 }
 
-int main(){
+int MyString::findLastOccurrence(const char* strn) const {
+    if (str == nullptr || strn == nullptr)
+        throw invalid_argument("Nullptr passed into findLastOccurence");
+    int pos = -1;
+    int lenOfWordToFind = stringLength(strn);
+    int lenOfOriginalWord = length;
 
-  MyString m("xv");
-  MyString n("hel lpdvello");
-  int pos = n.findFirstOccurence("ll");
-  cout<< pos<< endl;
-  n.append(m.getString());
-  cout<< n.getString()<< endl;
+    if (lenOfOriginalWord == 0 || lenOfWordToFind == 0 || lenOfOriginalWord < lenOfWordToFind) { //Validates the data
+        return -1;
+    }
+//Takes the way the characters that would not work due to size at the end of the list, then searches from the back.
+    for (int i = lenOfOriginalWord - lenOfWordToFind; i >= 0; i--) { //Looks for the last occurrence of the input
+        int j = 0;
+        bool notRightLetter = false;
+        if (strn[0] == str[i]) {
+            while (j < lenOfWordToFind && !notRightLetter) {
+                if (strn[j] != str[i + j]) {
+                    notRightLetter = true;
+                }
+                j++;
+            }
+            if (!notRightLetter) {
+                pos = i;
+                return pos;
+            }
+        }
+    }
+    return pos;
+}
 
-  //delete[] sub; //Have to use the [] to deallocate the whole array. Without the [] it only deletes the first value since pointers point to the first value of the array
-  return 0;
+MyString MyString::fromPositionSubString(const int pos, const int len) const {
+    if (pos < 0 || pos > length) {
+        throw runtime_error("Position out of bounds");
+    }
+    if (len > length || len < 0) {
+        throw runtime_error("Length is out of bounds");
+    }
+    char* temp = new char[len + 1];
+    int index = 0;
+    for (int i = 0; i < len; i++) {
+        temp[i] = str[pos + i];
+    }
+    temp[len] = '\0';
+    MyString newString(temp);
+    delete[] temp;
+    return newString;
+}
+
+MyString MyString::substring(int startingIndex, int endingIndex) const {
+    if (endingIndex > length || startingIndex < 0 || startingIndex >= endingIndex) {
+        return MyString("");
+    }
+    int subLength = endingIndex - startingIndex;
+    MyString subString;
+    subString.str = new char[subLength + 1];
+    for (int i = 0; i < subLength; i++) {
+        subString.str[i] = this->str[startingIndex + i];
+    }
+    subString.str[subLength] = '\0';
+    subString.setLength(subLength);
+    return subString;
+}
+
+bool MyString::empty() {
+    return length == 0;
+}
+
+MyString MyString::erase(const char* valuesToErase) const {
+    const int lengthOfErase = stringLength(valuesToErase);
+    char* temp = new char[length + 1];
+    int index = 0;
+    for (int i = 0; i < length; i++) {
+        bool notFound = true;
+        for (int j = 0; j < lengthOfErase; j++) {
+            if (this->str[i] == valuesToErase[j]) {
+                notFound = false;
+                break;
+            }
+        }
+        if (notFound) {
+            temp[index] = str[i];
+            index++;
+        }
+    }
+    temp[index] = '\0';
+    MyString newString(temp);
+    delete[] temp;
+    return newString;
+}
+
+void MyString::setString(char* strn) {
+    this->str = strn;
+}
+
+char* MyString::getString() const {
+    return str;
+}
+
+void MyString::setLength(int size) {
+    length = size;
+}
+
+int MyString::getLength() const {
+    return length;
+}
+
+const char MyString::getCharAt(const int i) const {
+    return str[i];
+}
+
+const int MyString::stringByteSize() const {
+    return sizeof(char) * (length + 1);
+}
+
+const int MyString::totalByteSize() const{
+    return sizeof(this) + sizeof(char) * length + 1;
+}
+
+bool operator==(const MyString& a, const MyString& b) {
+    cout << "In == operator" << endl;
+    bool notEqual = true;
+    for (int i = 0; i < a.getLength(); i++) {
+        if (a.getCharAt(i) != b.getCharAt(i)) {
+            notEqual = false;
+        }
+    }
+    return notEqual;
 }

@@ -155,7 +155,7 @@ int MyString::findLastOccurrence(const char* strn) const {
     if (lenOfOriginalWord == 0 || lenOfWordToFind == 0 || lenOfOriginalWord < lenOfWordToFind) { //Validates the data
         return -1;
     }
-//Takes the way the characters that would not work due to size at the end of the list, then searches from the back.
+//Takes away the characters that would not work due to size being to few characters. Then searches from the back.
     for (int i = lenOfOriginalWord - lenOfWordToFind; i >= 0; i--) { //Looks for the last occurrence of the input
         int j = 0;
         bool notRightLetter = false;

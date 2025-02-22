@@ -1,6 +1,5 @@
 #include<iostream>
 #include "MyString.h"
-
 using namespace std;
 
 void MyString::free() {
@@ -28,6 +27,13 @@ MyString::~MyString() {
     free();
 }
 
+char& MyString::operator*() {
+    return *str;
+}
+const char& MyString::operator*() const {
+    return *str;
+}
+
 MyString& MyString::operator=(const MyString& other) {
     if (this != &other) {
         free();
@@ -50,7 +56,7 @@ MyString& MyString::operator+=(const char* stringToAdd) {
 
     return *this;
 }
-bool MyString::operator==(const MyString& a) {
+bool MyString::operator==(const MyString& a) const{
     MyString b = (*this);
     bool notEqual = true;
     for (int i = 0; i < a.getLength(); i++) {
@@ -227,6 +233,29 @@ MyString MyString::erase(const char* valuesToErase) const {
     MyString newString(temp);
     delete[] temp;
     return newString;
+}
+
+const int MyString::compare(const char* str1) const{ // 0 is equal, 1 is str2 is bigger, -1 is str1 is bigger
+    if (str1 == nullptr || str == nullptr)
+        throw invalid_argument("Nullptr in compare");
+
+    const char* str2 = this->str;
+
+    while (*str1 && *str2) {        //Check each character
+        if (*str1 != *str2) {
+            if (*str1 < *str2)       //Compares character ASCII values
+                return -1;
+            return 1;   //If str2 bigger
+        }
+        str1++;
+        str2++;
+    }
+
+    if (*str1 == '\0' && *str2 == '\0')      //Checks if both ended
+        return 0;
+    if (*str1 == '\0')   //Checks which ended first
+        return -1;
+    return 1;
 }
 
 void MyString::setString(char* strn) {

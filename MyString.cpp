@@ -25,7 +25,6 @@ MyString::MyString(const MyString& other) {
 }
 
 MyString::~MyString() {
-    cout << "In destructor" << endl;
     free();
 }
 

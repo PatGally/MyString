@@ -14,6 +14,7 @@ public:
     MyString& operator=(const MyString& other);
     MyString operator+(const char* str) const;
     MyString& operator+=(const char* str);
+    bool operator==(const MyString& a);
 
     char operator[](int slot);
 
@@ -54,6 +55,5 @@ private:
 
 };
 
-bool operator==(const MyString& a, const MyString& b);
 
 #endif // MYSTRING_H

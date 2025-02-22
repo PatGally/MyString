@@ -51,6 +51,16 @@ MyString& MyString::operator+=(const char* stringToAdd) {
 
     return *this;
 }
+bool MyString::operator==(const MyString& a) {
+    MyString b = (*this);
+    bool notEqual = true;
+    for (int i = 0; i < a.getLength(); i++) {
+        if (a.getCharAt(i) != b.getCharAt(i)) {
+            notEqual = false;
+        }
+    }
+    return notEqual;
+}
 
 char MyString::operator[](int slot) {
     if (slot < 0 || slot > length)
@@ -248,13 +258,3 @@ const int MyString::totalByteSize() const{
     return sizeof(this) + sizeof(char) * length + 1;
 }
 
-bool operator==(const MyString& a, const MyString& b) {
-    cout << "In == operator" << endl;
-    bool notEqual = true;
-    for (int i = 0; i < a.getLength(); i++) {
-        if (a.getCharAt(i) != b.getCharAt(i)) {
-            notEqual = false;
-        }
-    }
-    return notEqual;
-}

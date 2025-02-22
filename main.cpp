@@ -5,7 +5,9 @@ using namespace std;
 int main(){
 
     MyString m("xv");
-    MyString n("Hello World");
+    MyString n("xv");
+    bool check = n == m;
+    cout<< "Check if equal: "<< check<< endl;
     int pos = n.findLastOccurrence("l");
     cout<< pos<< endl;
     n.append(m.getString());
